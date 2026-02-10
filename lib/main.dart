@@ -225,6 +225,12 @@ class _KeuanganPageState extends State<KeuanganPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF63B967),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () {
                 final cleanValue =
                 targetCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
@@ -236,10 +242,17 @@ class _KeuanganPageState extends State<KeuanganPage> {
                 _saveTarget();
                 Navigator.pop(context);
               },
-
-              child: const Text('Simpan'),
+              child: Text(
+                'Simpan',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
+
         ],
       ),
     );
