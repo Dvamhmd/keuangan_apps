@@ -169,94 +169,102 @@ class _KeuanganPageState extends State<KeuanganPage> {
           : RupiahFormatter.format(targetTabungan),
     );
 
-
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Edit Target',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: targetDate ?? DateTime.now(),
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
-                );
-                if (picked != null) {
-                  setState(() => targetDate = picked);
-                }
-              },
-              child: Text(
-                targetDate == null
-                    ? 'Pilih Deadline'
-                    : formatTanggal(targetDate!),
-                style: GoogleFonts.poppins(),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setLocalState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: targetCtrl,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              title: Text(
+                'Edit Target',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
               ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                RupiahInputFormatter(),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: targetDate ?? DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+
+                      if (picked != null) {
+                        setLocalState(() {
+                          targetDate = picked;
+                        });
+                      }
+                    },
+                    child: Text(
+                      targetDate == null
+                          ? 'Pilih Deadline'
+                          : formatTanggal(targetDate!),
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: targetCtrl,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      RupiahInputFormatter(),
+                    ],
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Target Tabungan',
+                      hintStyle: GoogleFonts.poppins(),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF63B967),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      final cleanValue =
+                      targetCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+                      setState(() {
+                        targetTabungan = int.tryParse(cleanValue) ?? 0;
+                      });
+
+                      _saveTarget();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
               ],
-              decoration: InputDecoration(
-                hintText: 'Target Tabungan',
-                hintStyle: GoogleFonts.poppins()
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF63B967),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                final cleanValue =
-                targetCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
-
-                setState(() {
-                  targetTabungan = int.tryParse(cleanValue) ?? 0;
-                });
-
-                _saveTarget();
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Simpan',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
+
 
 
 
