@@ -115,18 +115,7 @@ class _KeuanganPageState extends State<KeuanganPage> {
     _loadTagihan();
     _loadUangku();
     _loadTarget();
-  }
-
-  Future<void> _loadTagihan() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getStringList('tagihan') ?? [];
-
-    setState(() {
-      tagihanList = data
-          .map((e) => Tagihan.fromJson(jsonDecode(e)))
-          .toList();
-      lastUpdated = DateTime.now();
-    });
+    _loadLastUpdated();
   }
 
   Future<void> _loadUangku() async {
@@ -137,7 +126,6 @@ class _KeuanganPageState extends State<KeuanganPage> {
       uangkuList = data
           .map((e) => Uangku.fromJson(jsonDecode(e)))
           .toList();
-      lastUpdated = DateTime.now();
     });
   }
 
@@ -161,6 +149,39 @@ class _KeuanganPageState extends State<KeuanganPage> {
     }
     await prefs.setInt('target_amount', targetTabungan);
   }
+
+  Future<void> _loadLastUpdated() async {
+    final prefs = await SharedPreferences.getInstance();
+    final millis = prefs.getInt('last_updated');
+
+    setState(() {
+      lastUpdated =
+      millis != null ? DateTime.fromMillisecondsSinceEpoch(millis) : null;
+    });
+  }
+
+  Future<void> _updateLastUpdated() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+
+    await prefs.setInt('last_updated', now.millisecondsSinceEpoch);
+
+    setState(() {
+      lastUpdated = now;
+    });
+  }
+
+  Future<void> _loadTagihan() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getStringList('tagihan') ?? [];
+
+    setState(() {
+      tagihanList =
+          data.map((e) => Tagihan.fromJson(jsonDecode(e))).toList();
+    });
+  }
+
+
 
   void showEditTarget() {
     final targetCtrl = TextEditingController(
@@ -319,7 +340,10 @@ class _KeuanganPageState extends State<KeuanganPage> {
                 'amount': e.jumlah.toString(),
               })
                   .toList(),
-              onChanged: _loadTagihan,
+              onChanged: () async {
+                await _loadTagihan();
+                await _updateLastUpdated();
+              },
             ),
 
             const SizedBox(height: 16),
@@ -335,7 +359,11 @@ class _KeuanganPageState extends State<KeuanganPage> {
                 'amount': e.jumlah.toString(),
               })
                   .toList(),
-              onChanged: _loadUangku,
+              onChanged: () async {
+                await _loadUangku();
+                await _updateLastUpdated();
+              },
+
             ),
 
 
